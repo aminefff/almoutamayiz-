@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import GameScreen from './components/GameScreen';
 import ResultScreen from './components/ResultScreen';
@@ -43,7 +42,6 @@ const App: React.FC = () => {
   const [unrepliedMessagesCount, setUnrepliedMessagesCount] = useState(0);
   const [selectedMatchingGameData, setSelectedMatchingGameData] = useState<MatchingGameData | null>(null);
 
-  // جلب عدد الرسائل غير المجاب عليها للإدارة
   const fetchUnrepliedCount = useCallback(async () => {
     try {
         const { count, error } = await supabase
@@ -54,7 +52,6 @@ const App: React.FC = () => {
     } catch (e) { console.error(e); }
   }, []);
 
-  // 1. جلب الإشعارات السابقة عند تسجيل الدخول
   const fetchNotifications = useCallback(async (userId: string) => {
     try {
         const { data, error } = await supabase
@@ -104,10 +101,8 @@ const App: React.FC = () => {
         setGameState(GameState.APP);
         setLoading(false);
         
-        // Request notification permission
         requestNotificationPermission(profile.id);
         
-        // جلب الإشعارات والرسائل فور تحميل الحساب
         fetchNotifications(userId);
         fetchCurriculum();
         if (isAdmin || profile.role?.startsWith('teacher_')) {
@@ -123,9 +118,9 @@ const App: React.FC = () => {
     }
   }, [fetchNotifications, fetchUnrepliedCount]);
 
-  // 2. تفعيل الاستماع الحي للإشعارات (Realtime)
+  // تم تعطيل هذه الدالة لمنع ظهور الإشعار الداخلي المكرر (حرف A)
   useEffect(() => {
-    setupForegroundNotifications();
+    // setupForegroundNotifications(); 
   }, []);
 
   useEffect(() => {
@@ -141,8 +136,8 @@ const App: React.FC = () => {
           if (!newNotif.user_id || newNotif.user_id === currentUser.id) {
             setNotifications(prev => [newNotif, ...prev]);
             setHasUnreadNotifs(true);
-            playNotificationSound();
-            if (window.addToast) window.addToast(newNotif.title, 'info');
+            // playNotificationSound(); // تعطيل الصوت الداخلي لمنع التضارب
+            // if (window.addToast) window.addToast(newNotif.title, 'info'); // حذف التنبيه المنبثق الداخلي
           }
         }
       )
@@ -217,7 +212,6 @@ const App: React.FC = () => {
         onLogout={() => supabase.auth.signOut()} 
         onNavigate={(s) => setGameState(s)} 
       />
-      {/* Scroll container optimized for iOS */}
       <main className="flex-1 overflow-y-auto pt-16 pb-20 custom-scrollbar scroll-container overscroll-y-contain">
           <div key={currentTab} className="section-entry">
             {activeContent}
@@ -232,3 +226,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+    
